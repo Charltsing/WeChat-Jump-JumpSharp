@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADBDemo", "ADBDemo\ADBDemo.csproj", "{D335D5A0-209F-495A-8456-F3CD627113AA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D335D5A0-209F-495A-8456-F3CD627113AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D335D5A0-209F-495A-8456-F3CD627113AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D335D5A0-209F-495A-8456-F3CD627113AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D335D5A0-209F-495A-8456-F3CD627113AA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AEA9D965-9533-478E-82E3-BDB378A9EB9D}
+	EndGlobalSection
+EndGlobal
