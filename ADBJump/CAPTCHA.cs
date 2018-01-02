@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace ADBDemo
+namespace ADBJump
 {
     class CAPTCHA
     {
@@ -89,10 +89,13 @@ namespace ADBDemo
                         int r = rband[i, j];
                         int g = gband[i, j];
                         int b = bband[i, j];
-                        if (g==55 && r + b > 145 && r + b < 148)
+                        if (i > 500 && i < CAPTCHAHeight - 500  && j>200 && j< CAPTCHAWidth-200)
                         {
-                            DetectY = i;
-                            DetectX = j;                            
+                            if (g == 55 && r + b > 145 && r + b < 148)
+                            {
+                                DetectY = i;
+                                DetectX = j;
+                            }
                         }
                         imgPtr += depth;       // 偏移一个像素
                     }
