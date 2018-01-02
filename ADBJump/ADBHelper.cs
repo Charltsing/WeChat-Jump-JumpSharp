@@ -150,14 +150,18 @@ namespace ADBJump
             if (shellcommand.Contains("shell screencap -p"))
             {
                 //System.IO.File.WriteAllBytes(@"D:\1fix.png", bytesOutputfixed);
+                OutputText = shellcommand + " (received " + bytesOutputfixed.Length.ToString() + ") ";
             }
             else
+            {
                 OutputData = System.Text.Encoding.ASCII.GetString(bytesOutputfixed).Replace((char)0x0a, ' ');
+                if (string.IsNullOrEmpty(OutputData))
+                    OutputText = shellcommand + " ";
+                else
+                    OutputText = OutputData;
+            }
 
-            if (shellcommand.Contains("getprop") && string.IsNullOrEmpty(OutputData))
-                OutputText = "no devices";
-            else
-                OutputText = shellcommand + " ";
+            if (shellcommand.Contains("getprop") && string.IsNullOrEmpty(OutputData)) OutputText = "no devices";
             if (Output != null)
             {
                 Output(null, new EventArgsOutput() { Output = OutputText + "--> " + timer.Duration.ToString() + "\r\n" });
