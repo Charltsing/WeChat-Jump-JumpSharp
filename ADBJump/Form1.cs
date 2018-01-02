@@ -58,14 +58,14 @@ namespace ADBJump
         /// <summary>
         /// 设备后插入延时执行
         /// </summary>
-        private System.Timers.Timer DeviceTimer = new System.Timers.Timer(2000);
+        private System.Windows.Forms.Timer DeviceTimer = new System.Windows.Forms.Timer();
 
         private System.Windows.Forms.Timer CaptureTimer = new System.Windows.Forms.Timer();
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            DeviceTimer.AutoReset = false;                                                     //只需要执行一次
-            DeviceTimer.Elapsed += (o, e1) => { CheckHasAndroidModel(); };
+            DeviceTimer.Interval = 2000;                                                     //只需要执行一次
+            DeviceTimer.Tick += DeviceTimer_Tick;
 
             CaptureTimer.Interval = 50;
             CaptureTimer.Tick += CaptureTimer_Tick;            
@@ -73,8 +73,17 @@ namespace ADBJump
             ADB = new ADBHelper();
             ADB.Output += ADB_Output;
 
+            HasAndroid = false;
             CheckHasAndroidModel();
             capturecount = 0;
+            
+        }
+
+        private void DeviceTimer_Tick(object sender, EventArgs e)
+        {
+            DeviceTimer.Stop();
+            DeviceTimer.Enabled = false;
+            CheckHasAndroidModel();
         }
 
         private void CaptureTimer_Tick(object sender, EventArgs e)
@@ -83,7 +92,11 @@ namespace ADBJump
             if (capturecount > MaxCaptureCount) return;
             isBusy = true;
             capturecount++;
-            CaptureAndriod();
+            try
+            {
+                CaptureAndriod();
+            }
+            catch { }
             isBusy = false;
         }
 
@@ -97,26 +110,33 @@ namespace ADBJump
                 {
                     HiPerfTimer timer = new HiPerfTimer();
                     timer.Start();
-                    Bitmap bmpfix = DetectStartPoint(pngStream);
+                    Bitmap bmpfix = DetectStartPoint(pngStream);                    
                     timer.Stop();
-                    string tmp = "Detect:" + timer.Duration.ToString() + "\r\n";
-                    Invoke(new MethodInvoker(delegate ()
+                    if (bmpfix != null)
                     {
+                        string tmp = "Detect:" + timer.Duration.ToString() + "\r\n";
+                        Invoke(new MethodInvoker(delegate ()
                         {
-                            rtbCmd.AppendText(tmp);
-                            rtbCmd.ScrollToCaret();
-                        }
-                    }));
-                    pictureBox1.Invoke(new Action(() =>
-                    {
-                        pictureBox1.Image = bmpfix;
-                        pictureBox1.Refresh();
-                    }));
+                            {
+                                if (rtbCmd != null)
+                                {
+                                    rtbCmd.AppendText(tmp);
+                                    rtbCmd.ScrollToCaret();
+                                }
+                            }
+                        }));
+                        pictureBox1.Invoke(new Action(() =>
+                        {
+                            pictureBox1.Image = bmpfix;
+                            pictureBox1.Refresh();
+                        }));
+                    }
                 }
             }
         }
         private Bitmap DetectStartPoint(MemoryStream pngStream)
         {
+            if (!HasAndroid ) return null;
             Bitmap bmpfix=null;
             using (var img = Image.FromStream(pngStream))
             {
@@ -145,8 +165,10 @@ namespace ADBJump
                 Debug.WriteLine("WParam：{0} ,LParam:{1},Msg：{2}，Result：{3}", m.WParam, m.LParam, m.Msg, m.Result);
                 if (m.WParam.ToInt32() == 7)                                               //设备插入或拔出
                 {
-                    CheckHasAndroidModel();
-                    DeviceTimer.Start();
+                    if (!HasAndroid)
+                        DeviceTimer.Start();
+                    else
+                        Close();
                 }
             }
             try
@@ -219,10 +241,6 @@ namespace ADBJump
             ADB.RunADBShellCommand("shell input keyevent 4 ");
         }        
 
-        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            ADB.RunADBShellCommand("shell input keyevent 26 ");
-        }
         /// <summary>
         /// 黑人底部位置
         /// </summary>
@@ -323,6 +341,11 @@ namespace ADBJump
                 }
             }
             return result;
+        }
+
+        private void rtbCmd_MouseClick(object sender, MouseEventArgs e)
+        {
+            capturecount = 0;
         }
     }
 }

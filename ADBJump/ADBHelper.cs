@@ -22,6 +22,7 @@ namespace ADBJump
         private Process CmdProcess = null;
         
         public string OutputData = string.Empty;               //最后一个正确的输出结果
+        public string OutputText = string.Empty;               //最后一个正确的输出结果
         public string OutputError = string.Empty;              //最后一个错误的输出结果
         public OutputStatus CmdStatus = OutputStatus.NotRun;   //最后一个命令的运行状态
 
@@ -140,7 +141,7 @@ namespace ADBJump
                 MemoryStream OutputStream = new MemoryStream();
                 p.StandardOutput.BaseStream.CopyTo(OutputStream);
                 OutputStream.Position = 0;
-         
+
                 bytesOutputfixed = Fix0d0d0a(OutputStream.ToArray());
                 p.WaitForExit();
                 p.Close();
@@ -152,12 +153,15 @@ namespace ADBJump
                 //System.IO.File.WriteAllBytes(@"D:\1fix.png", bytesfix);
             }
             else
-                OutputData = System.Text.Encoding.ASCII.GetString(bytesOutputfixed).Replace((char)0x0a,' ');
+                OutputData = System.Text.Encoding.ASCII.GetString(bytesOutputfixed).Replace((char)0x0a, ' ');
 
-            if (string.IsNullOrEmpty(OutputData)) OutputData = shellcommand + " ";
+            if (shellcommand.Contains("getprop") && string.IsNullOrEmpty(OutputData))
+                OutputText = "no devices";
+            else
+                OutputText = shellcommand + " ";
             if (Output != null)
             {
-                Output(null, new EventArgsOutput() { Output = OutputData + "--> " + timer.Duration.ToString() + "\r\n" });
+                Output(null, new EventArgsOutput() { Output = OutputText + "--> " + timer.Duration.ToString() + "\r\n" });
             }
             CmdStatus = OutputStatus.Success;
         }

@@ -40,6 +40,7 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.rtbCmd = new System.Windows.Forms.RichTextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -55,7 +56,6 @@
             this.statusStrip1.Size = new System.Drawing.Size(725, 22);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
-            this.statusStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.statusStrip1_ItemClicked);
             // 
             // toolStripStatusLabel1
             // 
@@ -145,6 +145,17 @@
             this.rtbCmd.Size = new System.Drawing.Size(360, 640);
             this.rtbCmd.TabIndex = 5;
             this.rtbCmd.Text = "";
+            this.rtbCmd.MouseClick += new System.Windows.Forms.MouseEventHandler(this.rtbCmd_MouseClick);
+            // 
+            // label2
+            // 
+            this.label2.Font = new System.Drawing.Font("宋体", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label2.Location = new System.Drawing.Point(366, 643);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(273, 36);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "右键选目标点，自动跳。如果小黑人下面没有红点，先用左键点小黑人脚下再按右键。默认五次抓屏后停止，如果屏幕不同步请在调试窗口点一下鼠标左键。";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // Form1
             // 
@@ -152,6 +163,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(725, 701);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.rtbCmd);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
@@ -185,6 +197,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RichTextBox rtbCmd;
+        private System.Windows.Forms.Label label2;
     }
 }
 
