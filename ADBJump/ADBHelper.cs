@@ -149,8 +149,7 @@ namespace ADBJump
             timer.Stop();
             if (shellcommand.Contains("shell screencap -p"))
             {
-                //System.IO.File.WriteAllBytes(@"D:\1.png", bytes);
-                //System.IO.File.WriteAllBytes(@"D:\1fix.png", bytesfix);
+                //System.IO.File.WriteAllBytes(@"D:\1fix.png", bytesOutputfixed);
             }
             else
                 OutputData = System.Text.Encoding.ASCII.GetString(bytesOutputfixed).Replace((char)0x0a, ' ');
