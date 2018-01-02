@@ -24,8 +24,11 @@ See the [原作者](http://www.cnblogs.com/dotnet-org-cn/p/8149693.html)
 新版的ADBJump辅助工具重新写了获取截图代码，提升截图的效率。
 增加操作说明。
 
+
+
+
 如果右键不跳，请检查小黑人脚下是否有红点，如果没有红点用左键点一下再右键。
-如果usb调试模式是USB调试(安全模式)，可能会不跳。
+有的手机usb调试模式还有一个USB调试安全设置，不跳的可以试试。
 
 本程序在1920*1080分辨率测试通过，其他手机请自行改代码。
 https://github.com/Charltsing/WeChat-Jump-JumpSharp
