@@ -33,7 +33,7 @@ See the [原作者](http://www.cnblogs.com/dotnet-org-cn/p/8149693.html)
 ADB不工作的请netstat -ano | findstr "5037"  查看是什么东西占用的
 假如是：显示PID  4280 
 再具体点 tasklist /fi "pid eq 4280"，显示 360mobileloader.exe
-杀掉进程 tasklist /fi "pid eq 4280"
+杀掉进程 运行 taskkill /pid 4280
 然后测试ADB是否正常
 
 本程序在1920*1080分辨率测试通过，其他手机请自行改代码。
