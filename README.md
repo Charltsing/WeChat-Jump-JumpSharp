@@ -30,5 +30,11 @@ See the [原作者](http://www.cnblogs.com/dotnet-org-cn/p/8149693.html)
 如果右键不跳，请检查小黑人脚下是否有红点，如果没有红点用左键点一下再右键。
 有的手机usb调试模式还有一个USB调试安全设置，不跳的可以试试。
 
+ADB不工作的请netstat -ano | findstr "5037"  查看是什么东西占用的
+假如是：显示PID  4280 
+再具体点 tasklist /fi "pid eq 4280"，显示 360mobileloader.exe
+杀掉进程 tasklist /fi "pid eq 4280"
+然后测试ADB是否正常
+
 本程序在1920*1080分辨率测试通过，其他手机请自行改代码。
 https://github.com/Charltsing/WeChat-Jump-JumpSharp
