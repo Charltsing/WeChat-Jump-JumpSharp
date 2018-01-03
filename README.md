@@ -6,6 +6,7 @@
    adb工具包最新2017Google官方版下载https://dl.google.com/android/repository/platform-tools-latest-windows.zip
    压缩包中已经附带。解压缩复制到C盘，确保adb.exe在C:\Android\SDK\platform-tools目录中。这个目录可以自己改。
    
+
 2、打开手机的USB调试，具体自行百度。（一般是在手机版本号上点若干次，会出现提示）
 
 3、将手机连接到电脑，运行ADBJump.exe，如果检测到手机型号，说明设置正确。
@@ -17,11 +18,18 @@
 
 See the [原作者](http://www.cnblogs.com/dotnet-org-cn/p/8149693.html) 
 
+
 v1.3.1.4
+
 1、新版的ADBJump辅助工具重新写了获取截图代码，提升截图的效率。
+
 2、增加操作说明，增加时间参数。
+
 3、增加两种截图fix方式，增加无画面调试。
+
 4、增加adb检测批处理。
+
+
 
 
 常见问题：
