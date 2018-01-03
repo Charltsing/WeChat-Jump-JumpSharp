@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -23,6 +24,9 @@ namespace ADBJump
             InitializeComponent();
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
+            string txt = "辅助跳一跳: " + Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            txt += "    故障判断：看调试窗口，1、手机型号，2、是否启动截图及返回数据大小";
+            this.Text = txt;
             //Control.CheckForIllegalCrossThreadCalls = false;
         }
 
@@ -93,7 +97,7 @@ namespace ADBJump
             isBusy = true;
             capturecount++;
             try
-            {
+            {                
                 CaptureAndriod();
             }
             catch { }
@@ -192,6 +196,16 @@ namespace ADBJump
                 {
                     HasAndroid = false;
                     toolStripStatusLabel2.Text = "未检测到设备";
+                    Invoke(new MethodInvoker(delegate ()
+                    {
+                        {
+                            if (rtbCmd != null)
+                            {
+                                rtbCmd.AppendText("Detect Andriod device failed!\r\n1、请在cmd运行adb shell getprop ro.product.model 检测手机USB调试模式是否正常！\r\n2、请在cmd运行adb shell screencap -p 查看是否返回数据。\r\n\r\n");
+                                rtbCmd.ScrollToCaret();
+                            }
+                        }
+                    }));
                 }
                 else
                 {
@@ -199,6 +213,16 @@ namespace ADBJump
                     DetectSize();
                     toolStripStatusLabel2.Text = text.Trim() + "(" + ResolutionX.ToString() + "x" + ResolutionY.ToString() + ")" +
                                                  " ," + ResolutionXScale.ToString() + "x" + ResolutionYScale.ToString() + "";
+                    Invoke(new MethodInvoker(delegate ()
+                    {
+                        {
+                            if (rtbCmd != null)
+                            {
+                                rtbCmd.AppendText("Detect Andriod device success.\r\n\r\n***** Start capture Andriod Screen *****\r\n\r\n");
+                                rtbCmd.ScrollToCaret();
+                            }
+                        }
+                    }));
                     CaptureTimer.Start();
                 }
             }
@@ -275,7 +299,7 @@ namespace ADBJump
                 bool ret = int.TryParse(textBox1.Text, out delay);
                 if (!ret)
                 {
-                    textBox1.Text="2500";
+                    textBox1.Text="1200";
                 }
                 if (delay < 500) delay = 500;
                 if (delay > 5000) delay = 5000;
