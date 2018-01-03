@@ -100,7 +100,8 @@ namespace ADBJump
             {                
                 CaptureAndriod();
             }
-            catch { }
+            catch
+            { }
             isBusy = false;
         }
 
@@ -114,7 +115,24 @@ namespace ADBJump
                 {
                     HiPerfTimer timer = new HiPerfTimer();
                     timer.Start();
-                    Bitmap bmpfix = DetectStartPoint(pngStream);
+                    Bitmap bmpfix = null;
+                    try
+                    {
+                        bmpfix = DetectStartPoint(pngStream);
+                    }
+                    catch (Exception ex)
+                    {
+                        Invoke(new MethodInvoker(delegate ()
+                        {
+                            {
+                                if (rtbCmd != null)
+                                {
+                                    rtbCmd.AppendText(ex.ToString());
+                                    rtbCmd.ScrollToCaret();
+                                }
+                            }
+                        }));
+                    }
                     timer.Stop();
                     if (bmpfix != null)
                     {
@@ -318,11 +336,23 @@ namespace ADBJump
                 double value = Math.Sqrt(Math.Abs(Start.X - End.X) * Math.Abs(Start.X - End.X) + Math.Abs(Start.Y - End.Y) * Math.Abs(Start.Y - End.Y));
                 Text = string.Format("距离：{0}，时间：{1}", value.ToString("0.00"), (3.999022243950134 * value).ToString("0.000"));
                 //3.999022243950134  这个是我通过多次模拟后得到 我这个分辨率的最佳时间
-                ADB.RunADBShellCommand(string.Format("shell input swipe 100 100 200 200 {0}", (3.999022243950134 * value).ToString("0")));
+                if (this.tbxPressTimeValue.Text.Trim().Length==0)
+                {
+                    tbxPressTimeValue.Text = "4.0";// "3.999022243950134";
+                }
+                double timevalue;
+                bool ret;
+                ret=double.TryParse(tbxPressTimeValue.Text,out timevalue);
+                if (!ret)
+                {
+                    tbxPressTimeValue.Text = "4.0";
+                    timevalue = 4.0d;
+                }
+                ADB.RunADBShellCommand(string.Format("shell input swipe 100 100 100 100 {0}", (timevalue * value).ToString("0")));
                 
                 Cursor = Cursors.WaitCursor;
                 int delay = 2500;
-                bool ret = int.TryParse(textBox1.Text, out delay);
+                ret = int.TryParse(textBox1.Text, out delay);
                 if (!ret)
                 {
                     textBox1.Text="1200";
@@ -396,6 +426,34 @@ namespace ADBJump
         private void rtbCmd_MouseClick(object sender, MouseEventArgs e)
         {
             capturecount = 0;
+        }
+
+        private void btnDebugCapture_Click(object sender, EventArgs e)
+        {
+            isWaiting = true;
+            Cursor = Cursors.WaitCursor;
+            ADB.DebugCapture(System.Windows.Forms.Application.StartupPath);
+            MessageBox.Show("截图图像保存成功。\r\n请在ADBJump目录下检查fix.png是否可以用看图软件打开。\r\n如果无法打开,请用二进制编辑器检查pull.png文件和fix.png文件的异同,并发给作者。\r\nQQ:564955427。");
+            Cursor = Cursors.Default;
+            isWaiting = false;
+        }
+
+        private void tbxPressTimeValue_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == 13)
+            {
+                return;
+            }
+            if (e.KeyChar == 8 || e.KeyChar == 46)
+            {
+                e.Handled = false;
+                return;
+            }
+            if (e.KeyChar < '0' || e.KeyChar > '9')
+            {
+                e.Handled = true;
+                return;
+            }
         }
     }
 }

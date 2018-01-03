@@ -125,27 +125,7 @@ namespace ADBJump
             OutputData = string.Empty;
             bytesOutputfixed = null;
             timer.Start();
-            using (Process p = new Process())
-            {
-                p.StartInfo.FileName = AdbPath;             // @"C:\Android\sdk\platform-tools\adb.exe";
-                p.StartInfo.Arguments = shellcommand;
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.RedirectStandardInput = true;   //重定向标准输入   
-                p.StartInfo.RedirectStandardOutput = true;  //重定向标准输出   
-                p.StartInfo.RedirectStandardError = true;   //重定向错误输出   
-                p.StartInfo.CreateNoWindow = true;
-                p.Start();
-
-                //https://www.cnblogs.com/jackdong/archive/2011/03/31/2000740.html
-                //OutputData = p.StandardOutput.ReadToEnd();  //这一句执行之后，BaseStream就被读取，无法再读。
-                MemoryStream OutputStream = new MemoryStream();
-                p.StandardOutput.BaseStream.CopyTo(OutputStream);
-                OutputStream.Position = 0;
-
-                bytesOutputfixed = Fix0d0d0a(OutputStream.ToArray());
-                p.WaitForExit();
-                p.Close();
-            }
+            bytesOutputfixed= Fix0d0d0a(RunAdbProcess(shellcommand));            
             timer.Stop();
             if (shellcommand.Contains("shell screencap -p"))
             {
@@ -175,28 +155,68 @@ namespace ADBJump
 
             int idx = 0;
             int count = 0;
+            int idxFirst0D = 0;
+            int idxFirst0A = 0;
+            bool is0D = false;
             for (int i = 0; i < length; i++)
             {
                 byte b = bytes[i];
-                if (i > 1 && b == 0x0a)
+                if (b == 0x0d && idxFirst0D == 0)
                 {
-                    if (bytes[i - 1] == 0x0d && bytes[i - 2] == 0x0d)
-                    {
-                        count++;
-                        idx = idx - 2;
-                        bytesfix[idx] = b;
-                        idx++;
-                    }
+                    idxFirst0D = i;
+                    is0D = true;
+                }
+                if (b == 0x0a && idxFirst0A == 0)
+                {
+                    idxFirst0A = i;
+                }
+                if (i > 2 && b == 0x0a && is0D)
+                {
+                    count++;
+                    idx = idx - (idxFirst0A - idxFirst0D - 1);
+                    bytesfix[idx] = b;
+                    idx++;
                 }
                 else
                 {
                     bytesfix[idx] = b;
                     idx++;
-                }               
+                }
+                if (b == 0x0d)
+                    is0D = true;
+                else
+                    is0D = false;
             }
-            byte[] bytesfinal = new byte[length-count*2];
+            byte[] bytesfinal = new byte[length-count* (idxFirst0A - idxFirst0D-1)];
             Buffer.BlockCopy(bytesfix, 0, bytesfinal, 0, bytesfinal.Length);            
             return bytesfinal;
+        }
+
+        private byte[] RunAdbProcess(string shellcommand)
+        {
+            byte[] raw;
+            using (Process p = new Process())
+            {
+                p.StartInfo.FileName = AdbPath;             // @"C:\Android\sdk\platform-tools\adb.exe";
+                p.StartInfo.Arguments = shellcommand;
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardInput = true;   //重定向标准输入   
+                p.StartInfo.RedirectStandardOutput = true;  //重定向标准输出   
+                p.StartInfo.RedirectStandardError = true;   //重定向错误输出   
+                p.StartInfo.CreateNoWindow = true;
+                p.Start();
+
+                //https://www.cnblogs.com/jackdong/archive/2011/03/31/2000740.html
+                //OutputData = p.StandardOutput.ReadToEnd();  //这一句执行之后，BaseStream就被读取，无法再读。
+                MemoryStream OutputStream = new MemoryStream();
+                p.StandardOutput.BaseStream.CopyTo(OutputStream);
+                OutputStream.Position = 0;
+                raw = OutputStream.ToArray();
+
+                p.WaitForExit();
+                p.Close();
+            }
+            return raw;
         }
         /// <summary>
         /// 获取手机型号。默认为同步运行，isAsyn=false
@@ -216,6 +236,15 @@ namespace ADBJump
         internal void RunADBShellCommand(string shellcommandd)
         {
             runADBShell(shellcommandd);
+        }
+        internal void DebugCapture(string path)
+        {
+            RunAdbProcess("shell screencap -p /sdcard/1.png");
+            RunAdbProcess("pull /sdcard/1.png " + path + Path.DirectorySeparatorChar + "pull.png");
+            byte[] raw=RunAdbProcess("shell screencap -p");
+            System.IO.File.WriteAllBytes(path + Path.DirectorySeparatorChar + "raw.png", raw);
+            byte[] fix = Fix0d0d0a(raw);
+            System.IO.File.WriteAllBytes(path + Path.DirectorySeparatorChar + "fix.png", fix);
         }
     }
 }
