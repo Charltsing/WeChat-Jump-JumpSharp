@@ -114,7 +114,7 @@ namespace ADBJump
                 {
                     HiPerfTimer timer = new HiPerfTimer();
                     timer.Start();
-                    Bitmap bmpfix = DetectStartPoint(pngStream);                    
+                    Bitmap bmpfix = DetectStartPoint(pngStream);
                     timer.Stop();
                     if (bmpfix != null)
                     {
@@ -135,7 +135,33 @@ namespace ADBJump
                             pictureBox1.Refresh();
                         }));
                     }
+                    else
+                    {
+                        Invoke(new MethodInvoker(delegate ()
+                        {
+                            {
+                                if (rtbCmd != null)
+                                {
+                                    rtbCmd.AppendText("bmpfix is null!");
+                                    rtbCmd.ScrollToCaret();
+                                }
+                            }
+                        }));
+                    }
                 }
+            }
+            else
+            {
+                Invoke(new MethodInvoker(delegate ()
+                {
+                    {
+                        if (rtbCmd != null)
+                        {
+                            rtbCmd.AppendText("bytesOutputfixed is null!");
+                            rtbCmd.ScrollToCaret();
+                        }
+                    }
+                }));
             }
         }
         private Bitmap DetectStartPoint(MemoryStream pngStream)

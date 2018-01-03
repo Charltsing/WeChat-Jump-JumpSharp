@@ -22,4 +22,3 @@ https://github.com/Charltsing/WeChat-Jump-JumpSharp
 2、截图的png不要写到硬盘上，要直接读控制台，这样速度会快得多。
 
 有其他问题，欢迎交流。
-QQ：564955427
