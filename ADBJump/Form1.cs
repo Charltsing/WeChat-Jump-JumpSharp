@@ -223,7 +223,7 @@ namespace ADBJump
                 bmpfix = new Bitmap(c.bmp).Clone() as Bitmap;
                 using (Graphics g = Graphics.FromImage(bmpfix))
                 {
-                    using (Font font = new Font("Arial", 36))
+                    using (Font font = new Font("Times New Roman", 36))
                     {
                         g.DrawString(xyText, font, Brushes.Red, new PointF(10, 30));
                     }
