@@ -119,6 +119,36 @@ namespace ADBJump
         }
         #endregion Dispose        
 
+        internal bool CheckADB()
+        {
+            bool foundadb = true;
+            string adbpath = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar;
+            if (!File.Exists(adbpath + "adb.exe")) foundadb = false;
+            if (!File.Exists(adbpath + "AdbWinApi.dll")) foundadb = false;
+            if (!File.Exists(adbpath + "AdbWinUsbApi.dll")) foundadb = false;
+
+            if (foundadb)
+            {
+                AdbPath = adbpath + "adb.exe";
+                return true;
+            }
+            else
+            {
+                foundadb = true;
+                adbpath = @"C:\Android\SDK\platform-tools\";
+                if (!File.Exists(adbpath + "adb.exe")) foundadb = false;
+                if (!File.Exists(adbpath + "AdbWinApi.dll")) foundadb = false;
+                if (!File.Exists(adbpath + "AdbWinUsbApi.dll")) foundadb = false;
+                if (foundadb)
+                {
+                    AdbPath = @"C:\Android\SDK\platform-tools\adb.exe";
+                    return true;
+                }
+                else
+                    return false;
+            }
+        }
+
         private void runADBShell(string shellcommand)
         {
             CmdStatus = OutputStatus.Busy;
@@ -138,7 +168,7 @@ namespace ADBJump
                 if (string.IsNullOrEmpty(OutputData))
                     OutputText = shellcommand + " ";
                 else
-                    OutputText = OutputData;
+                    OutputText = OutputData.Replace("\r", "");
             }
 
             if (shellcommand.Contains("getprop") && string.IsNullOrEmpty(OutputData)) OutputText = "no devices";

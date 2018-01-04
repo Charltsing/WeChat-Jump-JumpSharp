@@ -25,7 +25,7 @@ namespace ADBJump
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             string txt = "辅助跳一跳: " + Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            txt += "    故障判断：看调试窗口，1、手机型号，2、是否启动截图及返回数据大小";
+            txt += "    故障判断：看调试窗口，1、手机型号及分辨率，2、是否启动截图及返回数据大小";
             this.Text = txt;
             //Control.CheckForIllegalCrossThreadCalls = false;
         }
@@ -58,6 +58,7 @@ namespace ADBJump
         bool isWaiting = false;
         int MaxCaptureCount = 5;
         int capturecount = 0;
+        bool isPause = false;
 
         /// <summary>
         /// 设备后插入延时执行
@@ -72,14 +73,22 @@ namespace ADBJump
             DeviceTimer.Tick += DeviceTimer_Tick;
 
             CaptureTimer.Interval = 50;
-            CaptureTimer.Tick += CaptureTimer_Tick;            
+            CaptureTimer.Tick += CaptureTimer_Tick;
+            capturecount = 0;
 
             ADB = new ADBHelper();
             ADB.Output += ADB_Output;
 
             HasAndroid = false;
-            CheckHasAndroidModel();
-            capturecount = 0;
+            bool ret = ADB.CheckADB();
+            if (ret)
+            {
+                CheckHasAndroidModel();
+            }
+            else
+            {
+                toolStripStatusLabel2.Text = "未找到adb文件！";
+            }
             
         }
 
@@ -93,7 +102,24 @@ namespace ADBJump
         private void CaptureTimer_Tick(object sender, EventArgs e)
         {
             if (!HasAndroid || isWaiting || isBusy) return;
-            if (capturecount > MaxCaptureCount) return;
+            if (capturecount > MaxCaptureCount)
+            {
+                if (!isPause)
+                {
+                    Invoke(new MethodInvoker(delegate ()
+                    {
+                        {
+                            if (rtbCmd != null)
+                            {
+                                rtbCmd.AppendText("\r\nCapture paused, wait for mouse click... \r\n\r\n");
+                                rtbCmd.ScrollToCaret();
+                            }
+                        }
+                    }));
+                    isPause = true;
+                }
+                return;
+            }
             isBusy = true;
             capturecount++;
             try
@@ -253,21 +279,21 @@ namespace ADBJump
                 }
                 else
                 {
-                    HasAndroid = true;
                     DetectSize();
-                    toolStripStatusLabel2.Text = text.Trim() + "(" + ResolutionX.ToString() + "x" + ResolutionY.ToString() + ")" +
-                                                 " ," + ResolutionXScale.ToString() + "x" + ResolutionYScale.ToString() + "";
-                    Invoke(new MethodInvoker(delegate ()
+                    if (ResolutionX == 0)
                     {
-                        {
-                            if (rtbCmd != null)
-                            {
-                                rtbCmd.AppendText("Detect Andriod device success.\r\n\r\n***** Start capture Andriod Screen *****\r\n\r\n");
-                                rtbCmd.ScrollToCaret();
-                            }
-                        }
-                    }));
-                    CaptureTimer.Start();
+                        toolStripStatusLabel2.Text = text.Trim() + "(检测Physical size失败)";
+                    }
+                    else
+                    {
+                        HasAndroid = true;
+                        toolStripStatusLabel2.Text = text.Trim() + "(" + ResolutionX.ToString() + "x" + ResolutionY.ToString() + ")" +
+                                                     " ," + ResolutionXScale.ToString() + "x" + ResolutionYScale.ToString() + "";
+                        rtbCmd.AppendText("Detect Andriod device success.\r\n\r\n***** Start capture Andriod Screen *****\r\n\r\n");
+                        rtbCmd.ScrollToCaret();
+
+                        CaptureTimer.Start();
+                    }
                 }
             }
             else
@@ -281,11 +307,23 @@ namespace ADBJump
             if (ADB.CmdStatus == OutputStatus.Success)
             {
                 string output = ADB.OutputData;
-                string[] Resolution = output.Split('x');
-                ResolutionX = GetNumberInt(Resolution[0]);
-                ResolutionY = GetNumberInt(Resolution[1]);
-                ResolutionXScale = (double)ResolutionX / pictureBox1.Width;
-                ResolutionYScale = (double)ResolutionY / pictureBox1.Height;
+                if (output.Contains("Physical size"))
+                {
+                    int idx = output.IndexOf("Physical size");
+                    output = output.Substring(idx + 15, output.Length - idx - 17);
+                    string[] Resolution = output.Split('x');
+                    ResolutionX = GetNumberInt(Resolution[0]);
+                    ResolutionY = GetNumberInt(Resolution[1]);
+                    ResolutionXScale = (double)ResolutionX / pictureBox1.Width;
+                    ResolutionYScale = (double)ResolutionY / pictureBox1.Height;
+                }
+                else
+                {
+                    ResolutionX = 0;
+                    ResolutionY = 0;
+                    ResolutionXScale = 0;
+                    ResolutionYScale = 0;
+                }
             }
             else
             {
@@ -320,6 +358,7 @@ namespace ADBJump
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             capturecount = 0;
+            isPause = false;
             var me = ((System.Windows.Forms.MouseEventArgs)(e));
             if (me.Button==MouseButtons.Left)              //按下左键是黑人底部坐标
             {
@@ -426,6 +465,7 @@ namespace ADBJump
         private void rtbCmd_MouseClick(object sender, MouseEventArgs e)
         {
             capturecount = 0;
+            isPause = false;
         }
 
         private void btnDebugCapture_Click(object sender, EventArgs e)
