@@ -437,7 +437,7 @@ namespace ADBJump
                 string offsetx = ran.Next(10, 50).ToString();
                 string offsety = ran.Next(10, 100).ToString();
                 ADB.RunADBShellCommand(string.Format("shell input swipe {0} {1} {2} {3} {4}", 
-                                                     rndX, rndY, rndX + offsetx, rndY + offsety, (timevalue * value).ToString("0")));
+                                                     rndX, rndY, (int.Parse(rndX) + int.Parse(offsetx)).ToString(), (int.Parse(rndY) + int.Parse(offsety)).ToString(), (timevalue * value).ToString("0")));
                 
                 Cursor = Cursors.WaitCursor;
                 int delay = 2500;
