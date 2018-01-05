@@ -128,7 +128,7 @@ namespace ADBJump
                 if (!File.Exists(adbpath + "adb")) foundadb = false;
                 if (!foundadb)
                 {
-                    if (UnixHelper.OS == "Darwin")
+                    if (UnixHelper.OS == "Darwin")  //检测iMac的adb
                     {
                         adbpath = Environment.GetEnvironmentVariable("HOME") + "/Library/Android/sdk/platform-tools/adb";
                         if (File.Exists(adbpath))
@@ -190,14 +190,15 @@ namespace ADBJump
             timer.Start();
             bytesOutputfixed= Fix0d0d0a(RunAdbProcess(shellcommand));            
             timer.Stop();
-            if (shellcommand.Contains("shell screencap -p"))
+            OutputData = System.Text.Encoding.ASCII.GetString(bytesOutputfixed).Replace((char)0x0a, ' ');
+
+            if (shellcommand.Contains("shell screencap -p") || shellcommand.Contains("shell dumpsys window"))
             {
                 //System.IO.File.WriteAllBytes(@"D:\1fix.png", bytesOutputfixed);
                 OutputText = shellcommand + " (received " + bytesOutputfixed.Length.ToString() + ") ";
             }
             else
-            {
-                OutputData = System.Text.Encoding.ASCII.GetString(bytesOutputfixed).Replace((char)0x0a, ' ');
+            {                
                 if (string.IsNullOrEmpty(OutputData))
                     OutputText = shellcommand + " ";
                 else
@@ -295,7 +296,14 @@ namespace ADBJump
         {
             runADBShell("shell wm size");
         }
-
+        internal void DetectAndriodWindow()
+        {
+            runADBShell("shell dumpsys window");
+        }
+        internal void DetectAndriodReleaseVer()
+        {
+            runADBShell("shell getprop ro.build.version.release");
+        }
         internal void RunADBShellCommand(string shellcommandd)
         {
             runADBShell(shellcommandd);

@@ -40,10 +40,10 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.rtbCmd = new System.Windows.Forms.RichTextBox();
-            this.label2 = new System.Windows.Forms.Label();
             this.btnDebugCapture = new System.Windows.Forms.Button();
             this.tbxPressTimeValue = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.cbxRotate180 = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -63,8 +63,8 @@
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(68, 17);
-            this.toolStripStatusLabel1.Text = "当前手机：";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(62, 17);
+            this.toolStripStatusLabel1.Text = "Andriod :";
             // 
             // toolStripStatusLabel2
             // 
@@ -125,9 +125,9 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(687, 652);
+            this.textBox1.Location = new System.Drawing.Point(553, 650);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(34, 21);
+            this.textBox1.Size = new System.Drawing.Size(51, 21);
             this.textBox1.TabIndex = 3;
             this.textBox1.Text = "1000";
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
@@ -135,11 +135,11 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(629, 658);
+            this.label1.Location = new System.Drawing.Point(499, 655);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(53, 12);
             this.label1.TabIndex = 4;
-            this.label1.Text = "跳跃间隔";
+            this.label1.Text = "跳后等待";
             // 
             // rtbCmd
             // 
@@ -150,20 +150,9 @@
             this.rtbCmd.Text = "";
             this.rtbCmd.MouseClick += new System.Windows.Forms.MouseEventHandler(this.rtbCmd_MouseClick);
             // 
-            // label2
-            // 
-            this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2.Font = new System.Drawing.Font("宋体", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label2.Location = new System.Drawing.Point(365, 641);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(251, 36);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "右键选目标点，自动跳。如果小黑人下面没有红点，先用左键点小黑人脚下再按右键。默认五次抓屏后停止，如果屏幕不同步请在调试窗口点一下鼠标左键。";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // btnDebugCapture
             // 
-            this.btnDebugCapture.Location = new System.Drawing.Point(631, 678);
+            this.btnDebugCapture.Location = new System.Drawing.Point(631, 656);
             this.btnDebugCapture.Name = "btnDebugCapture";
             this.btnDebugCapture.Size = new System.Drawing.Size(90, 23);
             this.btnDebugCapture.TabIndex = 7;
@@ -173,9 +162,9 @@
             // 
             // tbxPressTimeValue
             // 
-            this.tbxPressTimeValue.Location = new System.Drawing.Point(540, 680);
+            this.tbxPressTimeValue.Location = new System.Drawing.Point(368, 658);
             this.tbxPressTimeValue.Name = "tbxPressTimeValue";
-            this.tbxPressTimeValue.Size = new System.Drawing.Size(76, 21);
+            this.tbxPressTimeValue.Size = new System.Drawing.Size(105, 21);
             this.tbxPressTimeValue.TabIndex = 8;
             this.tbxPressTimeValue.Text = "4.00";
             this.tbxPressTimeValue.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbxPressTimeValue_KeyPress);
@@ -183,11 +172,21 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(363, 683);
+            this.label3.Location = new System.Drawing.Point(366, 643);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(179, 12);
+            this.label3.Size = new System.Drawing.Size(119, 12);
             this.label3.TabIndex = 9;
-            this.label3.Text = "模拟按键的时间参数(小近大远）";
+            this.label3.Text = "跳跃参数(小近大远）";
+            // 
+            // cbxRotate180
+            // 
+            this.cbxRotate180.AutoSize = true;
+            this.cbxRotate180.Location = new System.Drawing.Point(631, 640);
+            this.cbxRotate180.Name = "cbxRotate180";
+            this.cbxRotate180.Size = new System.Drawing.Size(90, 16);
+            this.cbxRotate180.TabIndex = 10;
+            this.cbxRotate180.Text = "画面旋转180";
+            this.cbxRotate180.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -195,11 +194,11 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(725, 701);
-            this.Controls.Add(this.tbxPressTimeValue);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.btnDebugCapture);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.cbxRotate180);
+            this.Controls.Add(this.tbxPressTimeValue);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.rtbCmd);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pictureBox1);
@@ -232,10 +231,10 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RichTextBox rtbCmd;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnDebugCapture;
         private System.Windows.Forms.TextBox tbxPressTimeValue;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox cbxRotate180;
     }
 }
 

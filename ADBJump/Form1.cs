@@ -59,6 +59,7 @@ namespace ADBJump
         int MaxCaptureCount = 5;
         int capturecount = 0;
         bool isPause = false;
+        string AndriodReleaseVer = string.Empty;
 
         /// <summary>
         /// 设备后插入延时执行
@@ -89,7 +90,7 @@ namespace ADBJump
             {
                 toolStripStatusLabel2.Text = "未找到adb文件！";
             }
-            
+            this.rtbCmd.Text = "操作说明：\r\n1、右键选目标点，自动跳。\r\n2、如果小黑人下面没有红点，先用左键点小黑人脚下再按右键。\r\n3、默认五次抓屏后停止，如果屏幕不同步请在调试窗口点一下鼠标左键。\r\n\r\n重要说明：\r\n  辅助工具只管跳，别的不负责。但是如果你不停歇连续跳得太多，或者右键跳得太准，或者与前一次成绩相差分数太大，腾讯会删除这个分数。所以，要考虑跳一会歇一会，不要连续跳中心点，也不要一次超上次得分太多。\r\n  遇到极为特殊的方块，该掉下就掉下去吧，别和腾讯对着干。\r\n\r\n";
         }
 
         private void DeviceTimer_Tick(object sender, EventArgs e)
@@ -117,6 +118,7 @@ namespace ADBJump
                         }
                     }));
                     isPause = true;
+                    Application.DoEvents();
                 }
                 return;
             }
@@ -145,6 +147,17 @@ namespace ADBJump
                     try
                     {
                         bmpfix = DetectStartPoint(pngStream);
+                        //为什么有的手机截屏画面上下颠倒呢？？？
+                        if (cbxRotate180.Checked) bmpfix.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                        using (Graphics g = Graphics.FromImage(bmpfix))
+                        {
+                            using (Font font = new Font("Times New Roman", 36))
+                            {
+                                string xyText = "(" + StartX.ToString() + "," + StartY.ToString() + ")";
+                                g.DrawString(xyText, font, Brushes.Red, new PointF(10, 30));
+                            }
+                        }
+
                     }
                     catch (Exception ex)
                     {
@@ -217,17 +230,10 @@ namespace ADBJump
                 Bitmap bmp = new Bitmap(img);
                 CAPTCHA c = new CAPTCHA(bmp);
                 StartX = (int)(c.DetectX / ResolutionXScale)-8;
-                StartY = (int)(c.DetectY / ResolutionYScale)+6;
-                string xyText = "(" + StartX.ToString() + "," + StartY.ToString() + ")";
+                StartY = (int)(c.DetectY / ResolutionYScale)+6;               
 
                 bmpfix = new Bitmap(c.bmp).Clone() as Bitmap;
-                using (Graphics g = Graphics.FromImage(bmpfix))
-                {
-                    using (Font font = new Font("Times New Roman", 36))
-                    {
-                        g.DrawString(xyText, font, Brushes.Red, new PointF(10, 30));
-                    }
-                }
+                
             }
             return bmpfix;
         }
@@ -260,9 +266,9 @@ namespace ADBJump
 
             if (ADB.CmdStatus == OutputStatus.Success)
             {
-                string text = ADB.OutputData;
+                string Phone = ADB.OutputData;
 
-                if (text.Contains("no devices") || string.IsNullOrWhiteSpace(text))
+                if (Phone.Contains("no devices") || string.IsNullOrWhiteSpace(Phone))
                 {
                     HasAndroid = false;
                     toolStripStatusLabel2.Text = "未检测到设备";
@@ -271,7 +277,7 @@ namespace ADBJump
                         {
                             if (rtbCmd != null)
                             {
-                                rtbCmd.AppendText("Detect Andriod device failed!\r\n1、请在cmd运行adb shell getprop ro.product.model 检测手机USB调试模式是否正常！\r\n2、请在cmd运行adb shell screencap -p 查看是否返回数据。\r\n\r\n");
+                                rtbCmd.AppendText("Detect Andriod device failed!\r\n1、请在cmd运行adb shell getprop ro.product.model 检测手机USB调试模式是否正常！\r\n2、请在cmd运行adb shell screencap -p 查看是否有返回数据。\r\n\r\n");
                                 rtbCmd.ScrollToCaret();
                             }
                         }
@@ -279,16 +285,19 @@ namespace ADBJump
                 }
                 else
                 {
+                    DetectVer();
+                    if (AndriodReleaseVer.StartsWith("4.0")) cbxRotate180.Checked = true;
                     DetectSize();
-                    if (ResolutionX == 0)
+                    if (ResolutionX == 0 || ResolutionY == 0)
                     {
-                        toolStripStatusLabel2.Text = text.Trim() + "(检测Physical size失败)";
+                        toolStripStatusLabel2.Text = Phone.Trim() + "(检测手机屏幕分辨率失败)";
                     }
                     else
                     {
                         HasAndroid = true;
-                        toolStripStatusLabel2.Text = text.Trim() + "(" + ResolutionX.ToString() + "x" + ResolutionY.ToString() + ")" +
-                                                     " ," + ResolutionXScale.ToString() + "x" + ResolutionYScale.ToString() + "";
+                        string msg = Phone.Trim() + " Ver:" + AndriodReleaseVer + "(" + ResolutionX.ToString() + "x" + ResolutionY.ToString() + "), screen scale: " +
+                                     ResolutionXScale.ToString() + "x" + ResolutionYScale.ToString();
+                        toolStripStatusLabel2.Text = msg.Replace("\r", "");
                         rtbCmd.AppendText("Detect Andriod device success.\r\n\r\n***** Start capture Andriod Screen *****\r\n\r\n");
                         rtbCmd.ScrollToCaret();
 
@@ -301,8 +310,21 @@ namespace ADBJump
                 toolStripStatusLabel2.Text = "cmd error: " + ADB.OutputError ;
             }
         }
+        private void DetectVer()
+        {
+            ADB.DetectAndriodReleaseVer();
+            if (ADB.CmdStatus == OutputStatus.Success)
+            {
+                AndriodReleaseVer = ADB.OutputData;
+            }
+        }
         private void DetectSize()
         {
+            ResolutionX = 0;
+            ResolutionY = 0;
+            ResolutionXScale = 0;
+            ResolutionYScale = 0;
+
             ADB.DetectAndriodScreenSize();                                  //获取手机分辨率
             if (ADB.CmdStatus == OutputStatus.Success)
             {
@@ -320,25 +342,34 @@ namespace ADBJump
                         ResolutionXScale = (double)ResolutionX / pictureBox1.Width;
                         ResolutionYScale = (double)ResolutionY / pictureBox1.Height;
                     }
-                    else
-                    {
-                        ResolutionX = 0;
-                        ResolutionY = 0;
-                        ResolutionXScale = 0;
-                        ResolutionYScale = 0;
-                    }
-                }
-                else
-                {
-                    ResolutionX = 0;
-                    ResolutionY = 0;
-                    ResolutionXScale = 0;
-                    ResolutionYScale = 0;
                 }
             }
-            else
+            //有的手机不能用wm size，换一种方式
+            if (ResolutionX == 0 || ResolutionY == 0)
             {
-                toolStripStatusLabel2.Text = "cmd error: " + ADB.OutputError;
+                ADB.DetectAndriodWindow();
+                if (ADB.CmdStatus == OutputStatus.Success)
+                {
+                    string output = ADB.OutputData;
+                    if (output.Contains("Display"))
+                    {
+                        //Display: init=540x960 base=540x960 cur=540x960 app=540x960 raw=540x960
+                        //app是不是当前游戏的分辨率呢？？？
+                        int idx = output.IndexOf("app=");
+                        if (idx >= 0)
+                        {
+                            output = output.Substring(idx);
+                            idx = output.IndexOf(" ");
+                            output = output.Substring(4, idx - 4);  //去掉app=
+
+                            string[] Resolution = output.Split('x');
+                            ResolutionX = GetNumberInt(Resolution[0]);
+                            ResolutionY = GetNumberInt(Resolution[1]);
+                            ResolutionXScale = (double)ResolutionX / pictureBox1.Width;
+                            ResolutionYScale = (double)ResolutionY / pictureBox1.Height;
+                        }
+                    }
+                }
             }
         }       
         
@@ -384,7 +415,7 @@ namespace ADBJump
                 End = ((System.Windows.Forms.MouseEventArgs)(e)).Location;
                 //计算两点直接的距离
                 double value = Math.Sqrt(Math.Abs(Start.X - End.X) * Math.Abs(Start.X - End.X) + Math.Abs(Start.Y - End.Y) * Math.Abs(Start.Y - End.Y));
-                Text = string.Format("距离：{0}，时间：{1}", value.ToString("0.00"), (3.999022243950134 * value).ToString("0.000"));
+                
                 //3.999022243950134  这个是我通过多次模拟后得到 我这个分辨率的最佳时间
                 if (this.tbxPressTimeValue.Text.Trim().Length==0)
                 {
@@ -398,7 +429,15 @@ namespace ADBJump
                     tbxPressTimeValue.Text = "4.0";
                     timevalue = 4.0d;
                 }
-                ADB.RunADBShellCommand(string.Format("shell input swipe 100 100 100 100 {0}", (timevalue * value).ToString("0")));
+                Text = string.Format("距离：{0}，时间：{1}", value.ToString("0.00"), (timevalue * value).ToString("0.000"));
+
+                Random ran = new Random();
+                string rndX = ran.Next(100, 300).ToString();
+                string rndY = ran.Next(100, 600).ToString();
+                string offsetx = ran.Next(10, 50).ToString();
+                string offsety = ran.Next(10, 100).ToString();
+                ADB.RunADBShellCommand(string.Format("shell input swipe {0} {1} {2} {3} {4}", 
+                                                     rndX, rndY, rndX + offsetx, rndY + offsety, (timevalue * value).ToString("0")));
                 
                 Cursor = Cursors.WaitCursor;
                 int delay = 2500;
