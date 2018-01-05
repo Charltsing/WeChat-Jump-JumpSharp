@@ -307,15 +307,26 @@ namespace ADBJump
             if (ADB.CmdStatus == OutputStatus.Success)
             {
                 string output = ADB.OutputData;
-                if (output.Contains("Physical size"))
+                if (output.Contains("size"))
                 {
-                    int idx = output.IndexOf("Physical size");
-                    output = output.Substring(idx + 15, output.Length - idx - 17);
-                    string[] Resolution = output.Split('x');
-                    ResolutionX = GetNumberInt(Resolution[0]);
-                    ResolutionY = GetNumberInt(Resolution[1]);
-                    ResolutionXScale = (double)ResolutionX / pictureBox1.Width;
-                    ResolutionYScale = (double)ResolutionY / pictureBox1.Height;
+                    int idx = output.IndexOf("Override size");
+                    if (idx < 0) idx = output.IndexOf("Physical size");
+                    if (idx >= 0)
+                    {
+                        output = output.Substring(idx + 15, output.Length - idx - 17);
+                        string[] Resolution = output.Split('x');
+                        ResolutionX = GetNumberInt(Resolution[0]);
+                        ResolutionY = GetNumberInt(Resolution[1]);
+                        ResolutionXScale = (double)ResolutionX / pictureBox1.Width;
+                        ResolutionYScale = (double)ResolutionY / pictureBox1.Height;
+                    }
+                    else
+                    {
+                        ResolutionX = 0;
+                        ResolutionY = 0;
+                        ResolutionXScale = 0;
+                        ResolutionYScale = 0;
+                    }
                 }
                 else
                 {
