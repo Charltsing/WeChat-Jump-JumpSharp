@@ -123,29 +123,62 @@ namespace ADBJump
         {
             bool foundadb = true;
             string adbpath = System.Windows.Forms.Application.StartupPath + Path.DirectorySeparatorChar;
-            if (!File.Exists(adbpath + "adb.exe")) foundadb = false;
-            if (!File.Exists(adbpath + "AdbWinApi.dll")) foundadb = false;
-            if (!File.Exists(adbpath + "AdbWinUsbApi.dll")) foundadb = false;
-
-            if (foundadb)
+            if (UnixHelper.OS != "windows")
             {
-                AdbPath = adbpath + "adb.exe";
-                return true;
+                if (!File.Exists(adbpath + "adb")) foundadb = false;
+                if (!foundadb)
+                {
+                    if (UnixHelper.OS == "Darwin")
+                    {
+                        adbpath = Environment.GetEnvironmentVariable("HOME") + "/Library/Android/sdk/platform-tools/adb";
+                        if (File.Exists(adbpath))
+                        {
+                            AdbPath = adbpath;
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        // TODO: Detect ADB on other *nix
+                        return false;
+                    }
+                }
+                else
+                {
+                    AdbPath = adbpath + "adb";
+                    return true;
+                }
             }
             else
             {
-                foundadb = true;
-                adbpath = @"C:\Android\SDK\platform-tools\";
                 if (!File.Exists(adbpath + "adb.exe")) foundadb = false;
                 if (!File.Exists(adbpath + "AdbWinApi.dll")) foundadb = false;
                 if (!File.Exists(adbpath + "AdbWinUsbApi.dll")) foundadb = false;
+
                 if (foundadb)
                 {
-                    AdbPath = @"C:\Android\SDK\platform-tools\adb.exe";
+                    AdbPath = adbpath + "adb.exe";
                     return true;
                 }
                 else
-                    return false;
+                {
+                    foundadb = true;
+                    adbpath = @"C:\Android\SDK\platform-tools\";
+                    if (!File.Exists(adbpath + "adb.exe")) foundadb = false;
+                    if (!File.Exists(adbpath + "AdbWinApi.dll")) foundadb = false;
+                    if (!File.Exists(adbpath + "AdbWinUsbApi.dll")) foundadb = false;
+                    if (foundadb)
+                    {
+                        AdbPath = @"C:\Android\SDK\platform-tools\adb.exe";
+                        return true;
+                    }
+                    else
+                        return false;
+                }
             }
         }
 

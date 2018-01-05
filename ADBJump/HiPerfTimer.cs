@@ -27,10 +27,17 @@ namespace ADBJump
         {
             startTime = 0;
             stopTime = 0;
-            if (QueryPerformanceFrequency(out Frequence) == false)
+            if (UnixHelper.OS == "windows")
             {
-                //不支持高性能计时器
-                throw new System.ComponentModel.Win32Exception();
+                if (QueryPerformanceFrequency(out Frequence) == false)
+                {
+                    //不支持高性能计时器
+                    throw new System.ComponentModel.Win32Exception();
+                }
+            }
+            else
+            {
+                UnixHelper.QueryPerformanceFrequency(out Frequence);
             }
         }
 
@@ -39,13 +46,27 @@ namespace ADBJump
         {
             //让等待线程工作
             System.Threading.Thread.Sleep(0);
-            QueryPerformanceCounter(out startTime);
+            if (UnixHelper.OS == "windows")
+            {
+                QueryPerformanceCounter(out startTime);
+            }
+            else
+            {
+                UnixHelper.QueryPerformanceCounter(out startTime);
+            }
         }
 
         //结束计时
         public void Stop()
         {
-            QueryPerformanceCounter(out stopTime);
+            if (UnixHelper.OS == "windows")
+            {
+                QueryPerformanceCounter(out stopTime);
+            }
+            else
+            {
+                UnixHelper.QueryPerformanceCounter(out stopTime);
+            }
         }
 
         //返回计时结果(ms)
