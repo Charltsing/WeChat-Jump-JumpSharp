@@ -53,6 +53,11 @@ v1.3.3
    杀掉进程 运行 taskkill /pid 4280
    然后测试ADB是否正常
 
+部分手机没给谷歌注册导致无法检测到设备，可能需要自行修改adb配置，具体百度。或者看下面三个链接
+http://blog.csdn.net/y_lang/article/details/44037431
+http://www.oneplusbbs.com/thread-468546-1-1.html
+http://www.jb51.net/article/38097.htm
+
 ***************************************************************
 本程序在1920*1080分辨率测试通过，有问题qq联系。
 
